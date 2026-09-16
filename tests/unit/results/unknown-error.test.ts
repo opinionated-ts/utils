@@ -4,27 +4,27 @@ import { UnknownError, unknownErrorCode } from "@/errors";
 
 describe("UnknownError", () => {
   it("should extend Error", () => {
-    const error = new UnknownError("failed");
+    const error = new UnknownError();
 
     expect(error).toBeInstanceOf(Error);
     expect(error).toBeInstanceOf(UnknownError);
   });
 
   it("should use the expected name", () => {
-    const error = new UnknownError("failed");
+    const error = new UnknownError();
 
     expect(error.name).toBe("UnknownError");
   });
 
   it("should use the expected code", () => {
-    const error = new UnknownError("failed");
+    const error = new UnknownError();
 
     expect(error.code).toBe(unknownErrorCode);
     expect(error.code).toBe("UNKNOWN_ERROR");
   });
 
   it("should use the default message", () => {
-    const error = new UnknownError("failed");
+    const error = new UnknownError();
 
     expect(error.message).toBe("An unknown error occurred");
   });
@@ -34,7 +34,7 @@ describe("UnknownError", () => {
       reason: "failed",
     };
 
-    const error = new UnknownError(cause);
+    const error = new UnknownError({ cause });
 
     expect(error.cause).toBe(cause);
   });
