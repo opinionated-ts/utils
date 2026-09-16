@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, it, expect } from "vitest";
 
 /**
  * Template example test.
