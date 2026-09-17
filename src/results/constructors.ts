@@ -1,6 +1,12 @@
 import { UnknownError } from "@/errors";
 
-import type { Failure, Success } from "./types";
+// oxlint-disable-next-line no-unused-vars - used by tsdoc
+import type { Failure, Success, Result } from "./types";
+
+import { isFailure } from "./guards";
+import { normalizeResult } from "./normalize";
+// oxlint-disable-next-line no-unused-vars - used by tsdoc
+import { tryResult, tryResultAsync } from "./try";
 
 /**
  * Creates a {@link Success} result from `value`.
@@ -42,32 +48,61 @@ export function failure<E extends Error>(error_: E): Failure<E> {
 }
 
 /**
- * Creates a {@link Failure} from any thrown value.
+ * Creates a normalized {@link Failure} from any value.
  *
- * - `Error` causes are preserved as-is.
+ * - Existing {@link Failure} values are preserved as-is.
+ * - `Error` values are preserved as-is.
  * - Anything else is wrapped in a {@link UnknownError}, keeping the original
- *   cause in its `cause` property.
+ *   value in its `cause` property.
  *
  * Designed for `catch` blocks; used internally by {@link tryResult} and
  * {@link tryResultAsync}.
  *
- * @typeParam E - Error type, constrained to `Error`.
  * @param cause - The cause of the failure.
- * @returns A {@link Failure}: `cause` itself when it is an `Error`, a
- * {@link UnknownError} wrapping it otherwise.
+ * @returns A normalized {@link Failure}.
  * @example
  * error(new Error("failed"));
  * // => { ok: false, error: Error("failed") }
  *
  * error("failed");
  * // => { ok: false, error: UnknownError { cause: "failed" } }
+ *
+ * error(error(new Error("failed")));
+ * // => { ok: false, error: Error("failed") }
  */
+export function error<E extends Error>(cause: Failure<E>): Failure<E>;
 export function error<E extends Error>(cause: E): Failure<E>;
 export function error(cause: unknown): Failure<UnknownError>;
 export function error(cause: unknown): Failure {
+  if (isFailure(cause)) {
+    return cause;
+  }
+
   if (cause instanceof Error) {
     return failure(cause);
   }
 
   return failure(new UnknownError({ cause }));
+}
+
+/**
+ * Creates a normalized {@link Result} from `value`.
+ *
+ * Existing {@link Result} values are normalized recursively:
+ * nested results are flattened, and failures are preserved.
+ *
+ * @param value - Value or {@link Result} to normalize.
+ * @returns A normalized {@link Result}.
+ * @example
+ * ok(42);
+ * // => { ok: true, value: 42 }
+ *
+ * ok(ok(42));
+ * // => { ok: true, value: 42 }
+ *
+ * ok(ok(error(new Error("failed"))));
+ * // => { ok: false, error: Error("failed") }
+ */
+export function ok<T>(value: T) {
+  return normalizeResult(value);
 }

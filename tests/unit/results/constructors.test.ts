@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { error, failure, success } from "@/results";
+import { error, failure, ok, success } from "@/results";
 
 class CustomError extends Error {}
 
@@ -78,6 +78,44 @@ describe("results constructors", () => {
       if (!result.ok) {
         expect(result.error.cause).toBe(cause);
       }
+    });
+
+    it("should preserve an existing Failure", () => {
+      const error_ = new CustomError("failed");
+      const result = error(error(error_));
+
+      expect(result.ok).toBe(false);
+
+      if (!result.ok) {
+        expect(result.error).toBe(error_);
+      }
+    });
+  });
+
+  describe("ok", () => {
+    it("should create a successful result", () => {
+      expect(ok(42)).toEqual({
+        ok: true,
+        value: 42,
+      });
+    });
+
+    it("should normalize nested successes", () => {
+      expect(ok(ok(42))).toEqual({
+        ok: true,
+        value: 42,
+      });
+    });
+
+    it("should preserve failures", () => {
+      const error_ = new CustomError("failed");
+
+      const result = ok(error(error_));
+
+      expect(result).toEqual({
+        ok: false,
+        error: error_,
+      });
     });
   });
 });

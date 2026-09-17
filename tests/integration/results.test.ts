@@ -6,15 +6,15 @@ import {
   failure,
   isFailure,
   isSuccess,
-  normalizeResult,
+  ok,
   success,
   tryResult,
   tryResultAsync,
 } from "@/results";
 
 describe("results integration", () => {
-  it("should compose success, normalization and guards", () => {
-    const result = normalizeResult(success(success(42)));
+  it("should compose ok and guards", () => {
+    const result = ok(ok(42));
 
     expect(isSuccess(result)).toBe(true);
     expect(isFailure(result)).toBe(false);
@@ -24,10 +24,9 @@ describe("results integration", () => {
     }
   });
 
-  it("should compose failure, normalization and guards", () => {
+  it("should compose ok, error and guards", () => {
     const error_ = new Error("failed");
-
-    const result = normalizeResult(success(success(failure(error_))));
+    const result = ok(error(error_));
 
     expect(isFailure(result)).toBe(true);
     expect(isSuccess(result)).toBe(false);

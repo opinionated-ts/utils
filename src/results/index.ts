@@ -1,4 +1,4 @@
-export { error, failure, success } from "./constructors";
+export { error, failure, success, ok } from "./constructors";
 
 export { isFailure, isSuccess } from "./guards";
 
