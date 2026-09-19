@@ -1,6 +1,7 @@
 {
   "extends": "@opinionated-ts/config/tsconfig.json",
   "compilerOptions": {
+    "exactOptionalPropertyTypes": true,
     "paths": {
       "@/*": ["./src/*"]
     }
